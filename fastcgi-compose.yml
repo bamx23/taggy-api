@@ -1,0 +1,26 @@
+fastcgi-daemon:
+  image: bamx23/fastcgi-daemon-docker
+  restart: always
+  container_name: fastcgi-daemon
+
+  environment:
+   - CONFIG_FILE=fastcgi.conf
+
+  volumes:
+    - ./src:/data
+    - ./cgi.sock:/var/run/fastcgi-daemon.sock
+
+nginx:
+  build: build/nginx
+  restart: always
+  container_name: fastcgi-nginx
+
+  links:
+   - fastcgi-daemon:fastcgi-daemon
+
+  ports:
+   - "8067:80"
+
+  volumes:
+    - ./cgi.sock:/var/run/fastcgi-daemon.sock
+    - ./logs:/var/log/nginx
