@@ -14,8 +14,9 @@ RUN apt-get update && \
 
 VOLUME ["data", "/var/run/fastcgi-daemon.sock"]
 
-WORKDIR data
-
 ENV CONF_FILE=HelloFastCGI.conf
+ADD start.sh /
 
-CMD ["bash", "make && fastcgi-daemon2 --config=$CONF_FILE"]
+RUN chmod +x start.sh
+
+CMD ["bash", "start.sh"]
