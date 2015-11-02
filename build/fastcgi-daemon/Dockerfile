@@ -12,7 +12,7 @@ RUN apt-get update && \
         ./fastcgi-daemon2_2.10-26_amd64.deb \
         ./libfastcgi2-syslog_2.10-26_amd64.deb
 
-VOLUME ["data", "/var/run/fastcgi-daemon.sock"]
+VOLUME ["data", "/tmp/fastcgi"]
 
 ENV CONF_FILE=HelloFastCGI.conf
 ADD start.sh /

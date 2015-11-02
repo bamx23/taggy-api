@@ -1,5 +1,5 @@
 fastcgi-daemon:
-  image: bamx23/fastcgi-daemon-docker
+  build: build/fastcgi-daemon
   restart: always
   container_name: fastcgi-daemon
 
@@ -8,7 +8,7 @@ fastcgi-daemon:
 
   volumes:
     - ./src:/data
-    - ./cgi.sock:/var/run/fastcgi-daemon.sock
+    - ./tmp:/tmp/fastcgi
 
 nginx:
   build: build/nginx
@@ -22,5 +22,5 @@ nginx:
    - "8067:80"
 
   volumes:
-    - ./cgi.sock:/var/run/fastcgi-daemon.sock
     - ./logs:/var/log/nginx
+    - ./tmp:/tmp/fastcgi
