@@ -14,7 +14,7 @@ RUN apt-get update && \
 
 VOLUME ["data", "/tmp/fastcgi"]
 
-ENV CONF_FILE=HelloFastCGI.conf
+ENV CONF_FILE=fastcgi.conf
 ADD start.sh /
 
 RUN chmod +x start.sh
