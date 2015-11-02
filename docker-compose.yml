@@ -7,7 +7,7 @@ fastcgi-daemon:
    - CONF_FILE=fastcgi.conf
 
   volumes:
-    - /tmp/fastcgi
+    - /tmp/fastcgi:/tmp/fastcgi
     - ./src:/data
 
 nginx:
@@ -22,5 +22,5 @@ nginx:
    - "8067:80"
 
   volumes:
-    - /tmp/fastcgi
+    - /tmp/fastcgi:/tmp/fastcgi
     - ./logs:/var/log/nginx
