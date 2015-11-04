@@ -1,10 +1,7 @@
-fastcgi-daemon:
-  build: build/fastcgi-daemon
+fastcgipp:
+  build: build/fastcgipp
   restart: always
-  container_name: fastcgi-daemon
-
-  environment:
-   - CONF_FILE=fastcgi.conf
+  container_name: fastcgipp
 
   volumes:
     - /tmp/fastcgi:/tmp/fastcgi
@@ -13,13 +10,13 @@ fastcgi-daemon:
 nginx:
   build: build/nginx
   restart: always
-  container_name: fastcgi-nginx
+  container_name: fastcgipp-nginx
 
   links:
-   - fastcgi-daemon:fastcgi-daemon
+   - fastcgipp:fastcgipp
 
   ports:
-   - "8067:80"
+   - "8068:80"
 
   volumes:
     - /tmp/fastcgi:/tmp/fastcgi

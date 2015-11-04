@@ -1,2 +1,2 @@
-all:
-	g++ HelloFastCGI.cpp -O2 -fPIC -lfastcgi-daemon2 -shared -o libHelloFastCGI.so
+all: echo.cpp
+	g++ -o main.fcgi echo.cpp -lfastcgipp -lboost_thread -lboost_system -pthread -lboost_date_time
