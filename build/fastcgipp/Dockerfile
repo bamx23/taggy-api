@@ -11,10 +11,14 @@ RUN apt-get update && \
     make install && \
     rm -rf /var/lib/apt/lists/*
 
-VOLUME ["data", "/tmp/fastcgi"]
+RUN ln -s /usr/local/lib/libfastcgipp.so.2.0.0 /usr/lib/libfastcgipp.so.2
+
+VOLUME ["data"]
 
 ADD start.sh /
 
 RUN chmod +x start.sh
 
 CMD ["bash", "start.sh"]
+
+EXPOSE 8023

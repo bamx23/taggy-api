@@ -4,7 +4,6 @@ fastcgipp:
   container_name: fastcgipp
 
   volumes:
-    - /tmp/fastcgi:/tmp/fastcgi
     - ./src:/data
 
 nginx:
@@ -19,5 +18,4 @@ nginx:
    - "8068:80"
 
   volumes:
-    - /tmp/fastcgi:/tmp/fastcgi
     - ./logs:/var/log/nginx
