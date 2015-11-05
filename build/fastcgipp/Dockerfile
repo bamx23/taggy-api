@@ -9,6 +9,8 @@ RUN apt-get update && \
     ./configure && \
     make && \
     make install && \
+    cd .. && \
+    rm -rf fastcgi++-2.1 && \
     rm -rf /var/lib/apt/lists/*
 
 RUN ln -s /usr/local/lib/libfastcgipp.so.2.0.0 /usr/lib/libfastcgipp.so.2
