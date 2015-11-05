@@ -1,4 +1,4 @@
 #!/bin/bash
 cd data
-make
-spawn-fcgi -n -p 8023 main.fcgi
+make > /var/log/fastcgipp/build.log 2>&1
+spawn-fcgi -n -p 8023 ${FCGI_MAIN}

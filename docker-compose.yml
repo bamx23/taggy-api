@@ -4,6 +4,7 @@ fastcgipp:
   container_name: fastcgipp
 
   volumes:
+    - ./logs:/var/log/fastcgipp
     - ./src:/data
 
 nginx:

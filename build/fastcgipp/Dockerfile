@@ -12,10 +12,12 @@ RUN apt-get update && \
     cd .. && \
     rm -rf fastcgi++-2.1 && \
     rm -rf /var/lib/apt/lists/*
-
 RUN ln -s /usr/local/lib/libfastcgipp.so.2.0.0 /usr/lib/libfastcgipp.so.2
 
-VOLUME ["data"]
+ENV FCGI_LIBS="-lfastcgipp -lboost_thread -lboost_system -pthread -lboost_date_time" \
+    FCGI_MAIN="main.fcgi"
+
+VOLUME ["data", "/var/log/fastcgipp"]
 
 ADD start.sh /
 

@@ -1,2 +1,2 @@
 all: echo.cpp
-	g++ -o main.fcgi echo.cpp -lfastcgipp -lboost_thread -lboost_system -pthread -lboost_date_time
+	g++ echo.cpp -O2 ${FCGI_LIBS} -o ${FCGI_MAIN}
