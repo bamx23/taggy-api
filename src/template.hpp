@@ -1,13 +1,15 @@
 #include <sstream>
+#include <fastcgi++/fcgistream.hpp>
 
-class Template : public std::stringstream
+typedef std::basic_stringstream<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > tstream;
+typedef Fastcgipp::Fcgistream<wchar_t> fcgistream;
+
+class Template : public tstream
 {
 protected:
-    virtual void header(std::stringstream &out) const { }
-    virtual void footer(std::stringstream &out) const { }
+    virtual void header(tstream &out) const { }
+    virtual void footer(tstream &out) const { }
 public:
-    friend std::stringstream &operator<<(std::stringstream &out, const Template &self);
+    friend tstream &operator<<(tstream &out, const Template &self);
+    friend fcgistream &operator<<(fcgistream &out, const Template &self);
 };
-
-template <class T>
-void dumpTo(T &out, const Template &self);

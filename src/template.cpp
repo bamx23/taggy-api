@@ -1,7 +1,6 @@
 #include "template.hpp"
-#include <fastcgi++/fcgistream.hpp>
 
-std::stringstream &operator<<(std::stringstream &out, const Template &self)
+tstream &operator<<(tstream &out, const Template &self)
 {
     self.header(out);
     out << self.str();
@@ -9,13 +8,10 @@ std::stringstream &operator<<(std::stringstream &out, const Template &self)
     return out;
 }
 
-template <class T>
-void dumpTo(T &out, const Template &self) { }
-
-template <>
-void dumpTo<Fastcgipp::Fcgistream<wchar_t> >(Fastcgipp::Fcgistream<wchar_t> &out, Template const &self)
+fcgistream &operator<<(fcgistream &out, const Template &self)
 {
-    std::stringstream temp;
+    tstream temp;
     temp << self;
-    out.dump(temp);
+    out << temp.str();
+    return out;
 }

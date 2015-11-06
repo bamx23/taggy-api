@@ -6,9 +6,9 @@
 
 static char *const kTGTitle = "Taggy: Currency Converter - Currency API";
 
-class MainHtmlTemplate : public Template
+class BootstrapHtml : public Template
 {
-    virtual void header(std::stringstream &out) const
+    virtual void header(tstream &out) const
     { 
         out << 
             "<html lang='en'>"
@@ -19,26 +19,25 @@ class MainHtmlTemplate : public Template
                     "<meta name='viewport' content='width=device-width, initial-scale=1'>"
                     "<meta name='author' content='Nikolay Volosatov'>"
                     "<title>" << kTGTitle << "</title>"
-                    "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css' integrity='sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==' crossorigin='anonymous' />"
-                    // "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css' integrity='sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX' crossorigin='anonymous' />"
-                    "<link rel='stylesheet' href='http://bootswatch.com/cosmo/bootstrap.min.css' />"
-                    "<link rel='stylesheet' href='http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css' />"
+                    "<link rel='stylesheet' href='/static/css/bootstrap.min.css' />"
+                    "<link rel='stylesheet' href='/static/css/bootstrap.theme.css' />"
+                    "<link rel='stylesheet' href='/static/css/style.css' />"
                 "</head>"
                 "<body>";
     }
 
-    virtual void footer(std::stringstream &out) const
+    virtual void footer(tstream &out) const
     { 
         out << 
-                "<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js' integrity='sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==' crossorigin='anonymous'></script>"
+                "<script src='/static/js/bootstrap.min.js'></script>"
                 "</body>"
             "</html>";
     }
 };
 
-class ListCurrencyTemplate : public Template
+class MainPageBody : public Template
 {
-    virtual void header(std::stringstream &out) const
+    virtual void header(tstream &out) const
     {
         out << 
             "<div class='container'>"
@@ -54,7 +53,7 @@ class ListCurrencyTemplate : public Template
                 "<div class='jumbotron'>";
     }
 
-    virtual void footer(std::stringstream &out) const
+    virtual void footer(tstream &out) const
     { 
         out <<
                 "</div>"
@@ -76,15 +75,32 @@ class MainRequest : public Fastcgipp::Request<wchar_t>
     {
         httpHeader();
 
-        MainHtmlTemplate body;
-        ListCurrencyTemplate curDiv;
+        BootstrapHtml html;
+        MainPageBody body;
+        
+        if (environment().requestUri == L"/") {
+            body << 
+                "<p>"
+                    "<a href='/rates' class='btn btn-sm btn-warning'>Latest Currency(JSON)</a> "
+                    "<a href='/history/0/24' class='btn btn-sm btn-warning'>Currency History(JSON)</a>"
+                "</p>"
+                "<h3>Actual currencies <i>(for 1 USD)</i></h3>";
 
-        curDiv << "Hello from Template! <br />";
-        curDiv << "And it works! " << 42 << " == 42!";
+            body << 
+                "<table class='table' style='text-align: center'>"
+                    "<tr><td>Currency</td><td>Rate</td></tr>";
+            for (size_t i = 0; i < 20; ++i) {
+                body <<
+                    "<tr><td><strong>" << "BYR" << "</strong></td><td>" << 17500.02 << "</td></tr>";
+            }
+            body <<
+                "</table>";
+        } else {
+            body << "<h1>404 Not found</h1>";
+        }
 
-        body << curDiv;
-        dumpTo(out, body);
-
+        html << body;
+        out << html;
         return true;
     }
 };

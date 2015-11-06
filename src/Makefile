@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall -O2
+CFLAGS=-c -Wall -O2 --std=c++11
 LDFLAGS=${FCGI_LIBS}
 SOURCES=error.cpp template.cpp main.cpp 
 OBJECTS=$(SOURCES:.cpp=.o)
