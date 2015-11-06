@@ -18,7 +18,7 @@ class MainHtmlTemplate : public Template
                     "<meta http-equiv='X-UA-Compatible' content='IE=edge'>"
                     "<meta name='viewport' content='width=device-width, initial-scale=1'>"
                     "<meta name='author' content='Nikolay Volosatov'>"
-                    "<title>kTGTitle</title>"
+                    "<title>" << kTGTitle << "</title>"
                     "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css' integrity='sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==' crossorigin='anonymous' />"
                     // "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css' integrity='sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX' crossorigin='anonymous' />"
                     "<link rel='stylesheet' href='http://bootswatch.com/cosmo/bootstrap.min.css' />"
@@ -49,7 +49,7 @@ class ListCurrencyTemplate : public Template
                             "<li role='presentation'><a href='http://taggy.by/'>Home</a></li>"
                         "</ul>"
                     "</nav>"
-                    "<h3 class='text-muted'>Taggy: Currency Converter - Currency DB</h3>"
+                    "<h3 class='text-muted'>" << kTGTitle << "</h3>"
                 "</div>"
                 "<div class='jumbotron'>";
     }
@@ -65,7 +65,7 @@ class ListCurrencyTemplate : public Template
     }
 };
 
-class Hello : public Fastcgipp::Request<wchar_t>
+class MainRequest : public Fastcgipp::Request<wchar_t>
 {
     void httpHeader() 
     {
@@ -96,7 +96,7 @@ int main()
 {
     try
     {
-        Fastcgipp::Manager<Hello> fcgi;
+        Fastcgipp::Manager<MainRequest> fcgi;
         fcgi.handler();
     }
     catch(std::exception& e)
