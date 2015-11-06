@@ -76,17 +76,15 @@ class MainRequest : public Fastcgipp::Request<wchar_t>
     {
         httpHeader();
 
-        Template html;
-
         MainHtmlTemplate body;
         ListCurrencyTemplate curDiv;
 
-        curDiv.in << "Hello from Template!";
+        curDiv << "Hello from Template! <br />";
+        curDiv << "And it works! " << 42 << " == 42!";
 
-        body.in << curDiv;
-        html.in << body;
+        body << curDiv;
+        dumpTo(out, body);
 
-        out.dump(html.in);
         return true;
     }
 };

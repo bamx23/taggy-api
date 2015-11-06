@@ -1,12 +1,13 @@
 #include <sstream>
 
-class Template
+class Template : public std::stringstream
 {
 protected:
     virtual void header(std::stringstream &out) const { }
     virtual void footer(std::stringstream &out) const { }
 public:
-    std::stringstream in;
-
     friend std::stringstream &operator<<(std::stringstream &out, const Template &self);
 };
+
+template <class T>
+void dumpTo(T &out, const Template &self);
