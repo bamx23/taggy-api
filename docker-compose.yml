@@ -19,4 +19,5 @@ nginx:
    - "8068:80"
 
   volumes:
+    - ./static:/var/www/static
     - ./logs:/var/log/nginx
