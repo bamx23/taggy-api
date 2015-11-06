@@ -21,8 +21,12 @@
 *.la
 *.a
 *.lib
+*.fcgi
 
 # Executables
 *.exe
 *.out
 *.app
+
+# Logs
+logs/
