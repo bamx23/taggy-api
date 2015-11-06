@@ -1,49 +1,12 @@
-#include <fstream>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/categories.hpp>
-#include <boost/iostreams/concepts.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 #include <fastcgi++/request.hpp>
 #include <fastcgi++/manager.hpp>
 
-#include <sstream>
+#include "error.hpp"
+#include "template.hpp"
 
 static char *const kTGTitle = "Taggy: Currency Converter - Currency API";
 
-void error_log(const char* msg)
-{
-    using namespace std;
-    using namespace boost;
-    static ofstream error;
-    if (!error.is_open()) {
-        error.open("/var/log/fastcgipp/hello.log", ios_base::out | ios_base::app);
-        error.imbue(locale(error.getloc(), new posix_time::time_facet()));
-    }
-
-    error << '[' << posix_time::second_clock::local_time() << "] " << msg << endl;
-}
-
-class Template
-{
-protected:
-    virtual void header(std::stringstream &out) const { }
-    virtual void footer(std::stringstream &out) const { }
-public:
-    std::stringstream in;
-
-    friend std::stringstream &operator<<(std::stringstream &out, const Template &self);
-};
-
-std::stringstream &operator<<(std::stringstream &out, const Template &self)
-{
-    self.header(out);
-    out << self.in.str();
-    self.footer(out);
-    return out;
-}
-
-class MainHtml : public Template
+class MainHtmlTemplate : public Template
 {
     virtual void header(std::stringstream &out) const
     { 
@@ -73,7 +36,7 @@ class MainHtml : public Template
     }
 };
 
-class ListCurrency : public Template
+class ListCurrencyTemplate : public Template
 {
     virtual void header(std::stringstream &out) const
     {
@@ -115,8 +78,8 @@ class Hello : public Fastcgipp::Request<wchar_t>
 
         Template html;
 
-        MainHtml body;
-        ListCurrency curDiv;
+        MainHtmlTemplate body;
+        ListCurrencyTemplate curDiv;
 
         curDiv.in << "Hello from Template!";
 
