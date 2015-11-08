@@ -4,8 +4,10 @@
 #include <sstream>
 #include <fastcgi++/fcgistream.hpp>
 
-typedef std::basic_stringstream<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > tstream;
-typedef Fastcgipp::Fcgistream<wchar_t> fcgistream;
+typedef char tchar_t;
+typedef std::basic_string<tchar_t> tstring;
+typedef std::basic_stringstream<tchar_t, std::char_traits<tchar_t>, std::allocator<tchar_t> > tstream;
+typedef Fastcgipp::Fcgistream<tchar_t> fcgistream;
 
 class Template : public tstream
 {

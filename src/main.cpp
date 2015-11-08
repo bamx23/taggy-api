@@ -5,7 +5,7 @@
 #include "template.hpp"
 #include "json.hpp"
 
-static std::wstring const kTGTitle = L"Taggy: Currency Converter - Currency API";
+static tstring const kTGTitle = "Taggy: Currency Converter - Currency API";
 
 class BootstrapHtml : public Template
 {
@@ -65,7 +65,7 @@ class MainPageBody : public Template
     }
 };
 
-class MainRequest : public Fastcgipp::Request<wchar_t>
+class MainRequest : public Fastcgipp::Request<tchar_t>
 {
     void httpHeader() 
     {
@@ -79,7 +79,7 @@ class MainRequest : public Fastcgipp::Request<wchar_t>
         BootstrapHtml html;
         MainPageBody body;
         
-        if (environment().requestUri == L"/") {
+        if (environment().requestUri == "/") {
             body << 
                 "<p>"
                     "<a href='/rates' class='btn btn-sm btn-warning'>Latest Currency(JSON)</a> "
@@ -96,20 +96,21 @@ class MainRequest : public Fastcgipp::Request<wchar_t>
             }
             body <<
                 "</table>";
-        } else if (environment().requestUri == L"/json") {
+        } else if (environment().requestUri == "/json") {
             out << (jobj() 
-                    << jkvp(L"key", 42)
-                    << jkvp(L"string", L"str")
-                    << jkvp(L"string", L"ecr\\str")
-                    << jkvp(L"arr", jarr() 
-                        << L"hello" 
+                    << jkvp("key", 42)
+                    << jkvp("string", "str")
+                    << jkvp("broken", "ecr\\str")
+                    << jkvp("russian", "привет")
+                    << jkvp("arr", jarr() 
+                        << "hello" 
                         << 23 
                         << 77.01f 
                         << -1L
                     )
-                    << jkvp(L"obj", jobj() 
-                        << jkvp(L"inKey", 0)
-                        << jkvp(L"str", L"World!")
+                    << jkvp("obj", jobj() 
+                        << jkvp("inKey", 0)
+                        << jkvp("str", "World!")
                     )
                 );
             return true;

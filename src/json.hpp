@@ -8,7 +8,7 @@ class JSONAbstract
 protected:
     tstream stream;
 public:
-    virtual std::wstring str() const { return stream.str(); }
+    virtual tstring str() const { return stream.str(); }
 
     friend tstream &operator<<(tstream &out, const JSONAbstract &self)
     {
@@ -25,28 +25,28 @@ public:
 
 class JSONVar : public JSONAbstract
 {
-    std::wstring escapeJsonString(const std::wstring& input) {
-        std::wostringstream ss;
+    tstring escapeJsonString(const tstring& input) {
+        tstream buffer;
         for (auto iter = input.cbegin(); iter != input.cend(); iter++) {
             switch (*iter) {
-                case '\\': ss << "\\\\"; break;
-                case '"': ss << "\\\""; break;
-                case '/': ss << "\\/"; break;
-                case '\b': ss << "\\b"; break;
-                case '\f': ss << "\\f"; break;
-                case '\n': ss << "\\n"; break;
-                case '\r': ss << "\\r"; break;
-                case '\t': ss << "\\t"; break;
-                default: ss << *iter; break;
+                case '\\': buffer << "\\\\"; break;
+                case '"':  buffer << "\\\""; break;
+                case '/':  buffer << "\\/"; break;
+                case '\b': buffer << "\\b"; break;
+                case '\f': buffer << "\\f"; break;
+                case '\n': buffer << "\\n"; break;
+                case '\r': buffer << "\\r"; break;
+                case '\t': buffer << "\\t"; break;
+                default: buffer << *iter; break;
             }
         }
-        return ss.str();
+        return buffer.str();
     }
 public:
     JSONVar() { }
 
-    JSONVar(const wchar_t *str) : JSONVar(std::wstring(str)) { }
-    JSONVar(const std::wstring &str) { stream << "\"" << escapeJsonString(str) << "\""; }
+    JSONVar(const tchar_t *str) : JSONVar(tstring(str)) { }
+    JSONVar(const tstring &str) { stream << "\"" << escapeJsonString(str) << "\""; }
 
     JSONVar(int x) { stream << x; }
     JSONVar(long x) { stream << x; }
@@ -58,7 +58,7 @@ public:
 class JSONKeyValue : public JSONAbstract
 {
 public:
-    JSONKeyValue(const std::wstring &key, const JSONVar &value)
+    JSONKeyValue(const tstring &key, const JSONVar &value)
     {
         stream << "\"" << key << "\":" << value.str();
     }
@@ -70,7 +70,7 @@ class JSONArray : public JSONVar
 public:
     JSONArray() : count(0) { }
 
-    virtual std::wstring str() const { return L"[" + stream.str() + L"]"; } 
+    virtual tstring str() const { return "[" + stream.str() + "]"; } 
     
     JSONArray &operator<<(const JSONVar &var)
     {
@@ -88,7 +88,7 @@ class JSONObject : public JSONVar
 public:
     JSONObject() : count(0) { }
 
-    virtual std::wstring str() const { return L"{" + stream.str() + L"}"; }
+    virtual tstring str() const { return "{" + stream.str() + "}"; }
 
     JSONObject &operator<<(const JSONKeyValue &keyValue)
     {
