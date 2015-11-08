@@ -3,8 +3,9 @@
 
 #include "error.hpp"
 #include "template.hpp"
+#include "json.hpp"
 
-static char *const kTGTitle = "Taggy: Currency Converter - Currency API";
+static std::wstring const kTGTitle = L"Taggy: Currency Converter - Currency API";
 
 class BootstrapHtml : public Template
 {
@@ -95,6 +96,23 @@ class MainRequest : public Fastcgipp::Request<wchar_t>
             }
             body <<
                 "</table>";
+        } else if (environment().requestUri == L"/json") {
+            out << (jobj() 
+                    << jkvp(L"key", 42)
+                    << jkvp(L"string", L"str")
+                    << jkvp(L"string", L"ecr\\str")
+                    << jkvp(L"arr", jarr() 
+                        << L"hello" 
+                        << 23 
+                        << 77.01f 
+                        << -1L
+                    )
+                    << jkvp(L"obj", jobj() 
+                        << jkvp(L"inKey", 0)
+                        << jkvp(L"str", L"World!")
+                    )
+                );
+            return true;
         } else {
             body << "<h1>404 Not found</h1>";
         }

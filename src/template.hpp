@@ -1,3 +1,6 @@
+#ifndef TEMPLATE_HPP
+#define TEMPLATE_HPP
+
 #include <sstream>
 #include <fastcgi++/fcgistream.hpp>
 
@@ -13,3 +16,5 @@ public:
     friend tstream &operator<<(tstream &out, const Template &self);
     friend fcgistream &operator<<(fcgistream &out, const Template &self);
 };
+
+#endif
