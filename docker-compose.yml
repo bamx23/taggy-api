@@ -1,23 +1,13 @@
 fastcgipp:
-  build: build/fastcgipp
+  build: build
   restart: always
-  container_name: fastcgipp
+  container_name: fast-taggy-api
+
+  ports:
+    - "8068:80"
 
   volumes:
     - ./logs:/var/log/fastcgipp
-    - ./src:/data
-
-nginx:
-  build: build/nginx
-  restart: always
-  container_name: fastcgipp-nginx
-
-  links:
-   - fastcgipp:fastcgipp
-
-  ports:
-   - "8068:80"
-
-  volumes:
-    - ./static:/var/www/static
     - ./logs:/var/log/nginx
+    - ./static:/var/www/static
+    - ./src:/data

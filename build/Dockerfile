@@ -1,5 +1,8 @@
 FROM ubuntu
 
+ENV FCGI_LIBS="-lfastcgipp -lboost_thread -lboost_system -pthread -lboost_date_time" \
+    FCGI_MAIN="main.fcgi"
+
 RUN apt-get update && \
     apt-get install -y wget build-essential libboost-dev libboost-date-time-dev libboost-system-dev libboost-thread-dev libboost-iostreams-dev libfcgi-dev spawn-fcgi && \
     wget http://download.savannah.nongnu.org/releases/fastcgipp/fastcgi++-2.1.tar.bz2 && \
@@ -11,18 +14,15 @@ RUN apt-get update && \
     make install && \
     cd .. && \
     rm -rf fastcgi++-2.1 && \
+    apt-get install -y nginx-full && \
     rm -rf /var/lib/apt/lists/*
+
+COPY start.sh /
+COPY nginx.conf /etc/nginx/nginx.conf
+
 RUN ln -s /usr/local/lib/libfastcgipp.so.2.0.0 /usr/lib/libfastcgipp.so.2
-
-ENV FCGI_LIBS="-lfastcgipp -lboost_thread -lboost_system -pthread -lboost_date_time" \
-    FCGI_MAIN="main.fcgi"
-
-VOLUME ["data", "/var/log/fastcgipp"]
-
-ADD start.sh /
-
 RUN chmod +x start.sh
 
 CMD ["bash", "start.sh"]
 
-EXPOSE 8023
+VOLUME ["data", "/var/www/static", "/var/log/fastcgipp", "/var/log/nginx"]
