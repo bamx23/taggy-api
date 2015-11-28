@@ -9,5 +9,6 @@ fastcgipp:
   volumes:
     - ./logs:/var/log/fastcgipp
     - ./logs:/var/log/nginx
+    - ./html:/var/www/html
     - ./static:/var/www/static
     - ./src:/data
