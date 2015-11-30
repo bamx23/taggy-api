@@ -42,14 +42,17 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
         if (environment().requestUri == "/api/v1/currency/") {
             httpHeader();
             auto currency = storage.getCurrentCurrency();
-            jobj currencyObj;
+            jarr currencyArr;
 
             for (auto& kvp : currency) {
-                currencyObj << jkvp(kvp.first, kvp.second);
+                currencyArr << (jobj() 
+                    << jkvp("name", kvp.first) 
+                    << jkvp("value", kvp.second)
+                );
             }
 
             out << (jobj() 
-                    << jkvp("currency", currencyObj)
+                    << jkvp("currency", currencyArr)
                     << jkvp("id", "20151025T000300")
                     << jkvp("time", "20151025T000300+03")
                     << jkvp("updated", "20151025T190300+03")
