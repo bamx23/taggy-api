@@ -1,4 +1,4 @@
-fastcgipp:
+webpy-fcgi:
   build: build
   restart: always
   container_name: fast-taggy-api
@@ -7,7 +7,6 @@ fastcgipp:
     - "8068:80"
 
   volumes:
-    - ./logs:/var/log/fastcgipp
     - ./logs:/var/log/nginx
     - ./html:/var/www/html
     - ./static:/var/www/static
