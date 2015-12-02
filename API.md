@@ -49,10 +49,6 @@
 }
 ```
 
-#### PUT /api/v1/currency
-
-Передается в том же формате, что и GET. Поле **updated** определяется сервером.
-
 #### GET /api/v1/history/
 
 ```
@@ -131,6 +127,39 @@
     "prev": "http://api.taggy.by/api/v1/history/20151026",
     "self": "http://api.taggy.by/api/v1/history/20151025",
     "updated": "20151025T190300+03"
+}
+```
+
+## Internal API
+
+Запросы ниже отделяются на уровне NGINX от публичного API, описанного выше.
+Данное API предназначено роботов, предоставляющих курсы валют в систему.
+
+#### POST /internal-api/v1/latest
+
+*Request:*
+
+```
+{
+    "currency": [
+        {
+            "name": "BYR",
+            "value": 15700.0
+        },
+        {
+            "name": "RUB",
+            "value": 65.0
+        }
+    ]
+}
+```
+
+*Response:*
+
+```
+{
+    "status": "ERROR",
+    "message": "Something went wrong"
 }
 ```
 

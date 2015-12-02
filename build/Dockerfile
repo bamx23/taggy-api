@@ -1,10 +1,10 @@
 FROM ubuntu
 
-ENV FCGI_LIBS="-lfastcgipp -lboost_thread -lboost_system -pthread -lboost_date_time" \
+ENV FCGI_LIBS="-lfastcgipp -lboost_thread -lboost_system -lboost_date_time -pthread" \
     FCGI_MAIN="main.fcgi"
 
 RUN apt-get update && \
-    apt-get install -y wget build-essential libboost-dev libboost-date-time-dev libboost-system-dev libboost-thread-dev libboost-iostreams-dev libfcgi-dev spawn-fcgi && \
+    apt-get install -y wget nginx-full build-essential libboost-dev libboost-date-time-dev libboost-system-dev libboost-thread-dev libboost-iostreams-dev libfcgi-dev spawn-fcgi && \
     wget http://download.savannah.nongnu.org/releases/fastcgipp/fastcgi++-2.1.tar.bz2 && \
     tar -xvjf fastcgi++-2.1.tar.bz2 && \
     rm fastcgi++-2.1.tar.bz2 && \
@@ -14,7 +14,8 @@ RUN apt-get update && \
     make install && \
     cd .. && \
     rm -rf fastcgi++-2.1 && \
-    apt-get install -y nginx-full && \
+    apt-get clean && \
+    apt-get purge && \
     rm -rf /var/lib/apt/lists/*
 
 COPY start.sh /
