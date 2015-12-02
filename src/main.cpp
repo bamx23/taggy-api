@@ -95,6 +95,14 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
     bool jsonUpdateCurrency()
     {
         httpHeader();
+
+        for (auto &kvp : environment().posts) {
+            out << kvp.first << " :<br/>";
+            out << kvp.second.value;
+        }
+
+        
+
         return true;
 
         ptree root;

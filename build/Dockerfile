@@ -4,19 +4,17 @@ ENV FCGI_LIBS="-lfastcgipp -lboost_thread -lboost_system -lboost_date_time -pthr
     FCGI_MAIN="main.fcgi"
 
 RUN apt-get update && \
-    apt-get install -y wget nginx-full build-essential libboost-dev libboost-date-time-dev libboost-system-dev libboost-thread-dev libboost-iostreams-dev libfcgi-dev spawn-fcgi && \
-    wget http://download.savannah.nongnu.org/releases/fastcgipp/fastcgi++-2.1.tar.bz2 && \
-    tar -xvjf fastcgi++-2.1.tar.bz2 && \
-    rm fastcgi++-2.1.tar.bz2 && \
-    cd fastcgi++-2.1 && \
+    apt-get install -y git nginx-full automake libtool doxygen build-essential libboost-dev libboost-date-time-dev libboost-system-dev libboost-thread-dev libboost-iostreams-dev libfcgi-dev spawn-fcgi && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/Wassasin/fastcgipp.git && \
+    cd fastcgipp && \
+    ./bootstrap && \
     ./configure && \
     make && \
     make install && \
     cd .. && \
-    rm -rf fastcgi++-2.1 && \
-    apt-get clean && \
-    apt-get purge && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf fastcgipp
 
 COPY start.sh /
 COPY nginx.conf /etc/nginx/nginx.conf
