@@ -1,3 +1,6 @@
+HOST=$(shell docker-machine ip default 2>/dev/null || echo localhost)
+URL=http://$(HOST):8068/api/v1/currency/
+
 all: up-containers
 	
 build-images:
@@ -11,3 +14,10 @@ restart:
 
 debug:
 	docker run --name fastcgipp-debug -i -t -w /data -v $(shell pwd)/src:/data $(shell docker images | grep fastcgipp | awk '{print $$1}') /bin/bash && docker rm fastcgipp-debug
+
+test-curl:
+	curl $(URL) 2>/dev/null | grep BYR -A 1
+	curl -H 'Content-Type: application/json' -X POST -d '{"currency":[{"name":"BYR", "value":3200}]}' $(URL)
+	curl $(URL) 2>/dev/null | grep BYR -A 1
+	curl -H 'Content-Type: application/json' -X POST -d '{"currency":[{"name":"BYR", "value":18200}]}' $(URL)
+	curl $(URL) 2>/dev/null | grep BYR -A 1
