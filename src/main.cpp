@@ -1,7 +1,7 @@
 #include <fastcgi++/fcgistream.hpp>
 #include <fastcgi++/request.hpp>
 #include <fastcgi++/manager.hpp>
-#include "ptree.hpp"
+#include "ptree-fix.hpp"
 #include "json_parser.hpp"
 #include <map>
 #include <sstream>
@@ -27,7 +27,7 @@ public:
         currentCurrency["RUB"] = 67.2;
     }
 
-    void updateCurrentCurrency(std::map<std::string, float> currency)
+    void updateCurrentCurrency(const std::map<std::string, float> &currency)
     {
         for (auto &kvp : currency) {
             currentCurrency[kvp.first] = kvp.second;
@@ -39,11 +39,10 @@ public:
         return currentCurrency;
     }
 };
+static CurrencyStorage storage;
 
 class MainRequest : public Fastcgipp::Request<tchar_t>
 {
-    CurrencyStorage storage;
-
     void httpHeader(bool isJson = true) 
     {
         if (isJson) {
@@ -96,39 +95,40 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
     {
         httpHeader();
 
-        for (auto &kvp : environment().posts) {
-            out << kvp.first << " :<br/>";
-            out << kvp.second.value;
+        ptree root = environment().jsonRoot;
+        std::map<std::string, float> currency;
+        for (auto &kvp : root.get_child("currency")) {
+            auto rate = kvp.second;
+            auto name = rate.get<std::string>("name");
+            auto value = rate.get<float>("value");
+            currency[name] = value;
         }
+        storage.updateCurrentCurrency(currency);
 
-        
-
-        return true;
-
-        ptree root;
-        std::istringstream dataStream(environment().findPost("data").value);
-        read_json(dataStream, root);
-        for (auto &rate : root.get_child("currency")) {
-            out << rate.second.get_value("name");//<< " : " << rate.second.get_child("value").str();
-        }
         return true;
     }
 
     bool response()
     {
-        if (environment().requestMethod == Fastcgipp::Http::HTTP_METHOD_GET) {
-            if (environment().requestUri == "/api/v1/currency/") {
-                return jsonGetCurrency();
-            } else {
-                http404();
-                out << "404 Not found";
-            }
-        } else if (environment().requestMethod == Fastcgipp::Http::HTTP_METHOD_POST) {
-            return jsonUpdateCurrency();
-            //if (environment().requestUri == "/api/v1/currency/") {
-            //    
-            //}
+        switch (environment().requestMethod) {
+            case Fastcgipp::Http::HTTP_METHOD_GET:
+                if (environment().requestUri == "/api/v1/currency/") {
+                    return jsonGetCurrency();
+                }
+                break; 
+
+            case Fastcgipp::Http::HTTP_METHOD_POST:
+                if (environment().requestUri == "/api/v1/currency/") {
+                    return jsonUpdateCurrency();
+                }
+                break;
+
+            default:
+                break;
         }
+
+        http404();
+        out << "404 Not found";
         return true;
     }
 };

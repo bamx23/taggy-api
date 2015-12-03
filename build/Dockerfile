@@ -7,7 +7,7 @@ RUN apt-get update && \
     apt-get install -y git nginx-full automake libtool doxygen build-essential libboost-dev libboost-date-time-dev libboost-system-dev libboost-thread-dev libboost-iostreams-dev libfcgi-dev spawn-fcgi && \
     rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/Wassasin/fastcgipp.git && \
+RUN git clone https://github.com/BamX/fastcgipp.git && \
     cd fastcgipp && \
     ./bootstrap && \
     ./configure && \
