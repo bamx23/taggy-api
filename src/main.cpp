@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "error.hpp"
+#include "currency_storage.hpp"
 
 typedef char tchar_t;
 typedef std::basic_string<tchar_t> tstring;
@@ -16,30 +17,6 @@ typedef Fastcgipp::Fcgistream<tchar_t> fcgistream;
 using boost::property_tree::ptree;
 using boost::property_tree::read_json;
 using boost::property_tree::write_json;
-
-class CurrencyStorage
-{
-    std::map<std::string, float> currentCurrency;
-public:
-    CurrencyStorage() 
-    {
-        currentCurrency["BYR"] = 18200;
-        currentCurrency["RUB"] = 67.2;
-    }
-
-    void updateCurrentCurrency(const std::map<std::string, float> &currency)
-    {
-        for (auto &kvp : currency) {
-            currentCurrency[kvp.first] = kvp.second;
-        }
-    }
-
-    std::map<std::string, float> &getCurrentCurrency()
-    {
-        return currentCurrency;
-    }
-};
-static CurrencyStorage storage;
 
 class MainRequest : public Fastcgipp::Request<tchar_t>
 {
@@ -66,7 +43,7 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
 
     bool jsonGetCurrency()
     {
-        auto currency = storage.getCurrentCurrency();
+        auto currency = staticStorage.getCurrentCurrency();
         if (currency.size() == 0) {
             http500();
             return true;
@@ -103,7 +80,7 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
             auto value = rate.get<float>("value");
             currency[name] = value;
         }
-        storage.updateCurrentCurrency(currency);
+        staticStorage.updateCurrentCurrency(currency);
 
         return true;
     }
