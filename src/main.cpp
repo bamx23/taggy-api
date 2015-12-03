@@ -43,7 +43,7 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
 
     bool jsonGetCurrency()
     {
-        auto currency = staticStorage.getCurrentCurrency();
+        auto currency = staticStorage.getCurrency();
         if (currency.size() == 0) {
             http500();
             return true;
@@ -80,7 +80,7 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
             auto value = rate.get<float>("value");
             currency[name] = value;
         }
-        staticStorage.updateCurrentCurrency(currency);
+        staticStorage.updateCurrency(currency);
 
         return true;
     }
