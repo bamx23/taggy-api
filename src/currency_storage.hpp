@@ -1,6 +1,8 @@
 #ifndef CURRENCY_STORAGE_HPP_INCLUDED
 #define CURRENCY_STORAGE_HPP_INCLUDED
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -8,6 +10,8 @@
 #include <map>
 #include <string>
 #include <fstream>
+
+#include "error.hpp"
 
 namespace storage {
 
@@ -69,12 +73,15 @@ namespace storage {
     {
         std::mutex staticStorageMutex;
         Currency currentCurrency;
+        boost::posix_time::ptime updateTime;
 
         std::thread saverThread;
     public:
         CurrencyStorage() : saverThread(asyncSaver)
         {
             currentCurrency = load();
+            // Save/load time
+            updateTime = boost::posix_time::microsec_clock::universal_time();
         }
 
         void updateCurrency(const Currency &currency)
@@ -83,12 +90,14 @@ namespace storage {
             for (auto &kvp : currency) {
                 currentCurrency[kvp.first] = kvp.second;
             }
+            updateTime = boost::posix_time::microsec_clock::universal_time();
             saveAsync(currentCurrency);
         }
 
-        Currency getCurrency()
+        Currency getCurrency(boost::posix_time::ptime *time)
         {
             std::lock_guard<std::mutex> lock(staticStorageMutex);
+            *time = updateTime;
             return currentCurrency;
         }
     };

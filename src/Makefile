@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-c -Wall -O2 --std=c++11
 LDFLAGS=${FCGI_LIBS}
-SOURCES=error.cpp main.cpp 
+SOURCES=main.cpp 
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=${FCGI_MAIN}
 

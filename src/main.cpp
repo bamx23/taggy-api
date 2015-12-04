@@ -1,6 +1,8 @@
 #include <fastcgi++/fcgistream.hpp>
 #include <fastcgi++/request.hpp>
 #include <fastcgi++/manager.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <locale>
 #include "ptree-fix.hpp"
 #include "json_parser.hpp"
 #include <map>
@@ -41,9 +43,22 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
         out << "Content-Type: text/html; charset=utf-8\r\n\r\n";
     }
 
+    std::string utcDate(boost::posix_time::ptime time)
+    {
+        using namespace boost::posix_time;
+        static std::locale loc(std::cout.getloc(), new time_facet("%Y%m%dT%H%M%S"));
+
+        std::ostringstream buffer;
+        buffer.imbue(loc);
+        buffer << time;
+        return buffer.str();
+    }
+
     bool jsonGetCurrency()
     {
-        auto currency = staticStorage.getCurrency();
+        boost::posix_time::ptime updateTime;
+        auto currency = staticStorage.getCurrency(&updateTime);
+
         if (currency.size() == 0) {
             http500();
             return true;
@@ -59,9 +74,7 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
         }
         result.add_child("currency", currencyRates);
 
-        put_str(result, "id", "20151025T000300");
-        put_str(result, "time", "20151025T000300");
-        put_str(result, "updated", "20151025T000300");
+        put_str(result, "time", utcDate(updateTime));
 
         httpHeader();
         write_json(out, result);
