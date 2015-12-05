@@ -15,8 +15,12 @@ namespace logging
     {
         std::string text;
         bool isError;
+        boost::posix_time::ptime time;
 
-        Message(const char *msg, bool error) : text(msg), isError(error) { }
+        Message(const char *msg, bool error) : text(msg), isError(error) 
+        {
+            time = boost::posix_time::second_clock::local_time();
+        }
     };
 
     std::queue<Message> messages;
@@ -34,7 +38,7 @@ namespace logging
             debug.imbue(locale(debug.getloc(), new posix_time::time_facet()));
         }
 
-        debug << (msg.isError ? "E " : "D ") << '[' << posix_time::second_clock::local_time() << "] " << msg.text << endl;
+        debug << (msg.isError ? "E " : "D ") << '[' << msg.time << "] " << msg.text << endl;
     }
 
     void asyncLogger() 

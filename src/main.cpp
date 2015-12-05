@@ -33,12 +33,14 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
 
     void http404()
     {
+        debug_log("Called 404");
         out << "Status: 404 Not found\r\n";
         out << "Content-Type: text/html; charset=utf-8\r\n\r\n";
     }
 
     void http500()
     {
+        debug_log("Called 500");
         out << "Status: 500 Internal Server Error\r\n";
         out << "Content-Type: text/html; charset=utf-8\r\n\r\n";
     }
