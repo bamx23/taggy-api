@@ -60,6 +60,7 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
         auto currency = staticStorage.getCurrency(&updateTime);
 
         if (currency.size() == 0) {
+            debug_log("No currency data");
             http500();
             return true;
         }
