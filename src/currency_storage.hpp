@@ -29,12 +29,14 @@ namespace storage {
             std::unique_lock<std::mutex> locker(saverMutex);
             saverCondition.wait(locker, []{ return notifySaver; });
 
+            debug_log("Saving currency");
             std::ofstream fout(dumpFilename);
             fout << saverCurency.size() << "\n";
             for (auto &kvp : saverCurency) {
                 fout << kvp.first << "\n" << kvp.second << "\n";
             }
             fout.close();
+            debug_log("Saved currency");
 
             notifySaver = false;
         }
@@ -45,6 +47,7 @@ namespace storage {
         std::unique_lock<std::mutex> locker(saverMutex);
         notifySaver = true;
         saverCurency = currency;
+        debug_log("Notify saving currency");
         saverCondition.notify_one();
     }
 
@@ -53,6 +56,7 @@ namespace storage {
         std::unique_lock<std::mutex> locker(saverMutex);
         Currency currency;
         try {
+            debug_log("Loading currency");
             std::ifstream fin(dumpFilename);
             size_t count;
             fin >> count;
@@ -63,6 +67,7 @@ namespace storage {
                 currency[name] = value;
             }
             fin.close();
+            debug_log("Loaded currency");
         } catch (const std::exception& e) {
             std::cerr << "Read dump error: " << e.what() << "\n";
         }
@@ -86,17 +91,22 @@ namespace storage {
 
         void updateCurrency(const Currency &currency)
         {
+            debug_log("Update before lock");
             std::lock_guard<std::mutex> lock(staticStorageMutex);
+            debug_log("Updating currency");
             for (auto &kvp : currency) {
                 currentCurrency[kvp.first] = kvp.second;
             }
             updateTime = boost::posix_time::microsec_clock::universal_time();
             saveAsync(currentCurrency);
+            debug_log("Updated currency");
         }
 
         Currency getCurrency(boost::posix_time::ptime *time)
         {
+            debug_log("Get before lock");
             std::lock_guard<std::mutex> lock(staticStorageMutex);
+            debug_log("Getting currency");
             *time = updateTime;
             return currentCurrency;
         }

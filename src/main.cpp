@@ -100,15 +100,18 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
 
     bool response()
     {
+        debug_log("===response start");
         switch (environment().requestMethod) {
             case Fastcgipp::Http::HTTP_METHOD_GET:
                 if (environment().requestUri == "/api/v1/currency/") {
+                    debug_log("Get");
                     return jsonGetCurrency();
                 }
                 break; 
 
             case Fastcgipp::Http::HTTP_METHOD_POST:
                 if (environment().requestUri == "/api/v1/currency/") {
+                    debug_log("Update");
                     return jsonUpdateCurrency();
                 }
                 break;
