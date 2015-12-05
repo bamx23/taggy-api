@@ -51,25 +51,32 @@ namespace storage {
         saverCondition.notify_one();
     }
 
+    inline bool fileExists(const std::string &name) {
+        struct stat buffer;   
+        return (stat(name.c_str(), &buffer) == 0); 
+    }
+
     Currency load()
     {
         std::unique_lock<std::mutex> locker(saverMutex);
         Currency currency;
-        try {
-            debug_log("Loading currency");
-            std::ifstream fin(dumpFilename);
-            size_t count;
-            fin >> count;
-            for (size_t i = 0; i < count; ++i) {
-                std::string name;
-                float value;
-                fin >> name >> value;
-                currency[name] = value;
+        if (fileExists(dumpFilename)) {
+            try {
+                debug_log("Loading currency");
+                std::ifstream fin(dumpFilename);
+                size_t count;
+                fin >> count;
+                for (size_t i = 0; i < count; ++i) {
+                    std::string name;
+                    float value;
+                    fin >> name >> value;
+                    currency[name] = value;
+                }
+                fin.close();
+                debug_log("Loaded currency");
+            } catch (const std::exception& e) {
+                std::cerr << "Read dump error: " << e.what() << "\n";
             }
-            fin.close();
-            debug_log("Loaded currency");
-        } catch (const std::exception& e) {
-            std::cerr << "Read dump error: " << e.what() << "\n";
         }
         return currency;
     }
