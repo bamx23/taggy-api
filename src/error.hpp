@@ -26,6 +26,7 @@ namespace logging
     std::queue<Message> messages;
     std::condition_variable loggerCondition;
     std::mutex loggerMutex;
+    bool loggerClose = false;
 
     void syncLog(const Message &msg)
     {
@@ -43,9 +44,9 @@ namespace logging
 
     void asyncLogger() 
     {
-        while (true) {
+        while (!loggerClose) {
             std::unique_lock<std::mutex> locker(loggerMutex);
-            loggerCondition.wait(locker, []{ return !messages.empty(); });
+            loggerCondition.wait(locker, []{ return loggerClose || !messages.empty(); });
 
             while (!messages.empty()) {
                 syncLog(messages.front());
@@ -67,7 +68,28 @@ namespace logging
         loggerCondition.notify_one();
     }
 
-    static std::thread loggerThread(asyncLogger);
+    void closeAsync()
+    {
+        std::unique_lock<std::mutex> locker(loggerMutex);
+        loggerClose = true;
+        loggerCondition.notify_one();
+    }
+
+    class Logger
+    {
+        std::thread loggerThread;
+
+    public:
+        Logger() : loggerThread(asyncLogger) { }
+
+        ~Logger()
+        {
+            closeAsync();
+            loggerThread.join();
+        }
+    };
+
+    static Logger logger;
 }
 
 void error_log(const char* msg)

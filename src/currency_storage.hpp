@@ -3,6 +3,7 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include <sys/stat.h>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -29,6 +30,8 @@ namespace storage {
             std::unique_lock<std::mutex> locker(saverMutex);
             saverCondition.wait(locker, []{ return notifySaver; });
 
+            if (closeSaver) return;
+
             debug_log("Saving currency");
             std::ofstream fout(dumpFilename);
             fout << saverCurency.size() << "\n";
@@ -40,6 +43,14 @@ namespace storage {
 
             notifySaver = false;
         }
+    }
+
+    void closeSaverAsync()
+    {
+        std::unique_lock<std::mutex> locker(saverMutex);
+        closeSaver = true;
+        notifySaver = true;
+        saverCondition.notify_one();
     }
 
     void saveAsync(const Currency &currency)
@@ -94,6 +105,12 @@ namespace storage {
             currentCurrency = load();
             // Save/load time
             updateTime = boost::posix_time::microsec_clock::universal_time();
+        }
+
+        ~CurrencyStorage()
+        {
+            closeSaverAsync();
+            saverThread.join();
         }
 
         void updateCurrency(const Currency &currency)
