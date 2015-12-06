@@ -3,7 +3,6 @@
 #include <fastcgi++/manager.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <locale>
-#include "ptree-fix.hpp"
 #include "json_parser.hpp"
 #include <map>
 #include <sstream>
@@ -17,8 +16,6 @@ typedef std::basic_stringstream<tchar_t, std::char_traits<tchar_t>, std::allocat
 typedef Fastcgipp::Fcgistream<tchar_t> fcgistream;
 
 using boost::property_tree::ptree;
-using boost::property_tree::read_json;
-using boost::property_tree::write_json;
 
 class MainRequest : public Fastcgipp::Request<tchar_t>
 {
@@ -45,42 +42,10 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
         out << "Content-Type: text/html; charset=utf-8\r\n\r\n";
     }
 
-    std::string utcDate(boost::posix_time::ptime time)
-    {
-        using namespace boost::posix_time;
-        static std::locale loc(std::cout.getloc(), new time_facet("%Y%m%dT%H%M%S"));
-
-        std::ostringstream buffer;
-        buffer.imbue(loc);
-        buffer << time;
-        return buffer.str();
-    }
-
     bool jsonGetCurrency()
     {
-        boost::posix_time::ptime updateTime;
-        auto currency = staticStorage.getCurrency(&updateTime);
-
-        if (currency.size() == 0) {
-            debug_log("No currency data");
-            http500();
-            return true;
-        }
-        ptree result;
-
-        ptree currencyRates;
-        for (auto &kvp : currency) {
-            ptree element;
-            put_str(element, "name", kvp.first);
-            element.put<float>("value", kvp.second);
-            currencyRates.push_back(std::make_pair("", element));
-        }
-        result.add_child("currency", currencyRates);
-
-        put_str(result, "time", utcDate(updateTime));
-
         httpHeader();
-        write_json(out, result);
+        out << staticStorage.getJson();
         return true;
     }
 
@@ -89,14 +54,14 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
         httpHeader();
 
         ptree root = environment().jsonRoot;
-        std::map<std::string, float> currency;
+        std::map<std::string, float> rates;
         for (auto &kvp : root.get_child("currency")) {
             auto rate = kvp.second;
             auto name = rate.get<std::string>("name");
             auto value = rate.get<float>("value");
-            currency[name] = value;
+            rates[name] = value;
         }
-        staticStorage.updateCurrency(currency);
+        staticStorage.updateCurrency(rates);
 
         return true;
     }

@@ -2,29 +2,210 @@
 #define CURRENCY_STORAGE_HPP_INCLUDED
 
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/conversion.hpp>
 
 #include <sys/stat.h>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
 
-#include <map>
+#include <vector>
 #include <string>
 #include <fstream>
 
 #include "error.hpp"
+#include "ptree-fix.hpp"
+#include "json_parser.hpp"
 
 namespace storage {
 
-    typedef std::map<std::string, float> Currency;
+    struct Rate
+    {
+        std::string name;
+        float value;
+        boost::posix_time::ptime updateTime;
+
+        Rate() : value(0) { };
+
+        Rate(const Rate &other)
+        {
+            name = other.name;
+            value = other.value;
+            updateTime = other.updateTime;
+        }
+    };
+
+    typedef std::vector<Rate> Currency;
 
     static const char dumpFilename[] = "currency.dump";
-    std::condition_variable saverCondition;
     std::mutex saverMutex;
+
+    void asyncSaver();
+    void closeSaverAsync();
+    void saveAsync(const Currency &);
+
+    std::string utcDate(const boost::posix_time::ptime &time)
+    {
+        using namespace boost::posix_time;
+        static std::locale loc(std::locale::classic(), new time_facet("%Y%m%dT%H%M%S"));
+
+        std::ostringstream buffer;
+        buffer.imbue(loc);
+        buffer << time;
+        return buffer.str();
+    }
+
+    std::time_t to_time_t(const boost::posix_time::ptime &time)
+    {
+        using namespace boost::posix_time;
+        ptime start(boost::gregorian::date(1970,1,1));
+        return (time - start).ticks() / time_duration::rep_type::ticks_per_second;
+    }
+
+    class CurrencyStorage
+    {
+        std::mutex staticStorageMutex;
+        Currency currentCurrency;
+        std::string jsonString;
+
+        std::thread saverThread;
+
+        inline bool fileExists(const std::string &name) {
+            struct stat buffer;
+            return (stat(name.c_str(), &buffer) == 0);
+        }
+
+        void load()
+        {
+            std::unique_lock<std::mutex> locker(saverMutex);
+            currentCurrency.clear();
+            if (fileExists(dumpFilename)) {
+                try {
+                    debug_log("Loading currency");
+                    std::ifstream fin(dumpFilename);
+                    size_t count;
+                    fin >> count;
+                    for (size_t i = 0; i < count; ++i) {
+                        Rate rate;
+                        std::time_t time;
+                        fin >> rate.name >> rate.value >> time;
+                        rate.updateTime = boost::posix_time::from_time_t(time);
+                        currentCurrency.push_back(rate);
+                    }
+                    fin.close();
+                    debug_log("Loaded currency");
+                } catch (const std::exception& e) {
+                    currentCurrency.clear();
+                    std::cerr << "Read dump error: " << e.what() << "\n";
+                }
+            }
+        }
+
+        void updateJsonString()
+        {
+            using boost::property_tree::ptree;
+            using boost::property_tree::write_json;
+
+            ptree result;
+
+            if (currentCurrency.size() > 0) {
+                boost::posix_time::ptime updateTime = currentCurrency[0].updateTime;
+
+                ptree currencyRates;
+                for (auto &rate : currentCurrency) {
+                    ptree element;
+                    put_str(element, "name", rate.name);
+                    element.put<float>("value", rate.value);
+                    currencyRates.push_back(std::make_pair("", element));
+
+                    if (rate.updateTime > updateTime) {
+                        updateTime = rate.updateTime;
+                    }
+                }
+                result.add_child("currency", currencyRates);
+
+                put_str(result, "time", utcDate(updateTime));
+            } else {
+                // TODO: implement error json
+            }
+
+            std::stringstream buffer;
+            write_json(buffer, result);
+            jsonString = buffer.str();
+        }
+
+    public:
+        CurrencyStorage() : saverThread(asyncSaver)
+        {
+            load();
+            updateJsonString();
+        }
+
+        ~CurrencyStorage()
+        {
+            closeSaverAsync();
+            saverThread.join();
+        }
+
+        void updateCurrency(const std::map<std::string, float> &currency)
+        {
+            debug_log("Update before lock");
+            std::lock_guard<std::mutex> lock(staticStorageMutex);
+            debug_log("Updating currency");
+
+            auto updateTime = boost::posix_time::microsec_clock::universal_time();
+            for (auto &rate : currency) {
+                int index = -1;
+                for (size_t i = 0; i < currentCurrency.size(); ++i) {
+                    if (rate.first == currentCurrency[i].name) {
+                        index = (int)i;
+                        break;
+                    }
+                }
+                if (index == -1) {
+                    Rate newRate;
+                    newRate.name = rate.first;
+                    currentCurrency.push_back(newRate);
+                    index = (int)(currentCurrency.size() - 1);
+                }
+
+                auto &currentRate = currentCurrency[index];
+                currentRate.value = rate.second;
+                currentRate.updateTime = updateTime;
+            }
+
+            saveAsync(currentCurrency);
+            updateJsonString();
+
+            debug_log("Updated currency");
+        }
+
+        std::string getJson()
+        {
+            debug_log("Get before lock");
+            std::lock_guard<std::mutex> lock(staticStorageMutex);
+            debug_log("Getting currency");
+            return jsonString;
+        }
+    };
+
+    std::condition_variable saverCondition;
     bool notifySaver, closeSaver;
     Currency saverCurency;
 
-    void asyncSaver() 
+    void saveSync()
+    {
+        debug_log("Saving currency");
+        std::ofstream fout(dumpFilename);
+        fout << saverCurency.size() << "\n";
+        for (auto &rate : saverCurency) {
+            fout << rate.name << "\n" << rate.value << "\n" << to_time_t(rate.updateTime) << "\n";
+        }
+        fout.close();
+        debug_log("Saved currency");
+    }
+
+    void asyncSaver()
     {
         while (!closeSaver) {
             std::unique_lock<std::mutex> locker(saverMutex);
@@ -32,14 +213,7 @@ namespace storage {
 
             if (closeSaver) return;
 
-            debug_log("Saving currency");
-            std::ofstream fout(dumpFilename);
-            fout << saverCurency.size() << "\n";
-            for (auto &kvp : saverCurency) {
-                fout << kvp.first << "\n" << kvp.second << "\n";
-            }
-            fout.close();
-            debug_log("Saved currency");
+            saveSync();
 
             notifySaver = false;
         }
@@ -61,80 +235,6 @@ namespace storage {
         debug_log("Notify saving currency");
         saverCondition.notify_one();
     }
-
-    inline bool fileExists(const std::string &name) {
-        struct stat buffer;   
-        return (stat(name.c_str(), &buffer) == 0); 
-    }
-
-    Currency load()
-    {
-        std::unique_lock<std::mutex> locker(saverMutex);
-        Currency currency;
-        if (fileExists(dumpFilename)) {
-            try {
-                debug_log("Loading currency");
-                std::ifstream fin(dumpFilename);
-                size_t count;
-                fin >> count;
-                for (size_t i = 0; i < count; ++i) {
-                    std::string name;
-                    float value;
-                    fin >> name >> value;
-                    currency[name] = value;
-                }
-                fin.close();
-                debug_log("Loaded currency");
-            } catch (const std::exception& e) {
-                std::cerr << "Read dump error: " << e.what() << "\n";
-            }
-        }
-        return currency;
-    }
-
-    class CurrencyStorage
-    {
-        std::mutex staticStorageMutex;
-        Currency currentCurrency;
-        boost::posix_time::ptime updateTime;
-
-        std::thread saverThread;
-    public:
-        CurrencyStorage() : saverThread(asyncSaver)
-        {
-            currentCurrency = load();
-            // Save/load time
-            updateTime = boost::posix_time::microsec_clock::universal_time();
-        }
-
-        ~CurrencyStorage()
-        {
-            closeSaverAsync();
-            saverThread.join();
-        }
-
-        void updateCurrency(const Currency &currency)
-        {
-            debug_log("Update before lock");
-            std::lock_guard<std::mutex> lock(staticStorageMutex);
-            debug_log("Updating currency");
-            for (auto &kvp : currency) {
-                currentCurrency[kvp.first] = kvp.second;
-            }
-            updateTime = boost::posix_time::microsec_clock::universal_time();
-            saveAsync(currentCurrency);
-            debug_log("Updated currency");
-        }
-
-        Currency getCurrency(boost::posix_time::ptime *time)
-        {
-            debug_log("Get before lock");
-            std::lock_guard<std::mutex> lock(staticStorageMutex);
-            debug_log("Getting currency");
-            *time = updateTime;
-            return currentCurrency;
-        }
-    };
 
 }
 

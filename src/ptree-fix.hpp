@@ -1,6 +1,8 @@
 #ifndef PTREE_FIX_HPP_INCLUDED
 #define PTREE_FIX_HPP_INCLUDED
 
+#include "json_parser.hpp"
+
 template <typename T>
 struct StringTranslator
 {

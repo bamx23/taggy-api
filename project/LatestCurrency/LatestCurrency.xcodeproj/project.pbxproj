@@ -27,6 +27,7 @@
 		41F25BB21C14595100EC39C8 /* entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = entry.cpp; sourceTree = "<group>"; };
 		41F25BB41C145A9200EC39C8 /* currency_storage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = currency_storage.hpp; path = ../../../src/currency_storage.hpp; sourceTree = "<group>"; };
 		41F25BB51C145DF200EC39C8 /* error.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = error.hpp; path = ../../../src/error.hpp; sourceTree = "<group>"; };
+		41F25BB61C147C7600EC39C8 /* currency.dump */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = currency.dump; path = ../../../src/currency.dump; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +60,7 @@
 		41F25BA81C1457BB00EC39C8 /* LatestCurrency */ = {
 			isa = PBXGroup;
 			children = (
+				41F25BB61C147C7600EC39C8 /* currency.dump */,
 				41F25BB51C145DF200EC39C8 /* error.hpp */,
 				41F25BB41C145A9200EC39C8 /* currency_storage.hpp */,
 				41F25BB21C14595100EC39C8 /* entry.cpp */,
