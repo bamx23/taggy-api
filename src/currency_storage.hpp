@@ -33,6 +33,20 @@ namespace storage {
             value = other.value;
             updateTime = other.updateTime;
         }
+
+        void read(std::istream &stream)
+        {
+            std::time_t time;
+            stream >> name >> value >> time;
+            updateTime = boost::posix_time::from_time_t(time);
+        }
+
+        void write(std::ostream &stream) const
+        {
+            using namespace boost::posix_time;
+            ptime start(boost::gregorian::date(1970, 1, 1));
+            stream << name << "\n" << value << "\n" << (updateTime - start).total_seconds() << "\n";
+        }
     };
 
     typedef std::vector<Rate> Currency;
@@ -80,9 +94,7 @@ namespace storage {
                     fin >> count;
                     for (size_t i = 0; i < count; ++i) {
                         Rate rate;
-                        std::time_t time;
-                        fin >> rate.name >> rate.value >> time;
-                        rate.updateTime = boost::posix_time::from_time_t(time);
+                        rate.read(fin);
                         currentCurrency.push_back(rate);
                     }
                     fin.close();
@@ -186,18 +198,14 @@ namespace storage {
     bool notifySaver, closeSaver;
     Currency saverCurency;
 
-    void saveSync()
+    void saveSync(const Currency &currency)
     {
-        using namespace boost::posix_time;
-
         debug_log("Saving currency");
-        ptime start(boost::gregorian::date(1970, 1, 1));
 
         std::ofstream fout(dumpFilename);
-        fout << saverCurency.size() << "\n";
-        for (auto &rate : saverCurency) {
-            fout << rate.name << "\n" << rate.value << "\n";
-            fout << (rate.updateTime - start).total_seconds() << "\n";
+        fout << currency.size() << "\n";
+        for (auto &rate : currency) {
+            rate.write(fout);
         }
         fout.close();
         debug_log("Saved currency");
@@ -207,11 +215,11 @@ namespace storage {
     {
         while (!closeSaver) {
             std::unique_lock<std::mutex> locker(saverMutex);
-            saverCondition.wait(locker, []{ return notifySaver; });
+            saverCondition.wait(locker, []{ return closeSaver || notifySaver; });
 
             if (closeSaver) return;
 
-            saveSync();
+            saveSync(saverCurency);
 
             notifySaver = false;
         }
@@ -221,7 +229,6 @@ namespace storage {
     {
         std::unique_lock<std::mutex> locker(saverMutex);
         closeSaver = true;
-        notifySaver = true;
         saverCondition.notify_one();
     }
 
