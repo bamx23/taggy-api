@@ -29,6 +29,7 @@
                 <h3>Actual currencies <i>(for 1 USD)</i></h3>
                 <table class='table' style='text-align: center' id='currency'>
                 </table>
+                <span class="label label-warning" id='update-time'></span>
             </div>
             <footer class='footer'>
                 <p>&copy; VASAG 2015</p>
@@ -45,6 +46,16 @@
                     });
 
                     $("#currency").html(items.join(""));
+                    var result = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/.exec(data["time"]);
+                    var date = new Date(Date.UTC(
+                        parseInt(result[1], 10),
+                        parseInt(result[2], 10) - 1,
+                        parseInt(result[3], 10),
+                        parseInt(result[4], 10),
+                        parseInt(result[5], 10),
+                        parseInt(result[6], 10)
+                        ));
+                    $("#update-time").html(date);
                 });
                 
             });
