@@ -55,13 +55,6 @@ namespace storage {
         return buffer.str();
     }
 
-    std::time_t to_time_t(const boost::posix_time::ptime &time)
-    {
-        using namespace boost::posix_time;
-        ptime start(boost::gregorian::date(1970,1,1));
-        return (time - start).ticks() / time_duration::rep_type::ticks_per_second;
-    }
-
     class CurrencyStorage
     {
         std::mutex staticStorageMutex;
@@ -195,11 +188,16 @@ namespace storage {
 
     void saveSync()
     {
+        using namespace boost::posix_time;
+
         debug_log("Saving currency");
+        ptime start(boost::gregorian::date(1970, 1, 1));
+
         std::ofstream fout(dumpFilename);
         fout << saverCurency.size() << "\n";
         for (auto &rate : saverCurency) {
-            fout << rate.name << "\n" << rate.value << "\n" << to_time_t(rate.updateTime) << "\n";
+            fout << rate.name << "\n" << rate.value << "\n";
+            fout << (rate.updateTime - start).total_seconds() << "\n";
         }
         fout.close();
         debug_log("Saved currency");
