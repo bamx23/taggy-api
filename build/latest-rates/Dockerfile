@@ -25,3 +25,4 @@ RUN chmod +x start.sh
 CMD ["bash", "start.sh"]
 
 VOLUME ["data", "/var/www/static", "/var/www/html", "/var/log/fastcgipp", "/var/log/nginx"]
+EXPOSE 80

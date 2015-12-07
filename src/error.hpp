@@ -36,7 +36,7 @@ namespace logging
         static ofstream debug;
 
         if (!debug.is_open()) {
-            debug.open("/var/log/fastcgipp/debug.log", ios_base::out | ios_base::app);
+            debug.open("/var/log/taggy/debug.log", ios_base::out | ios_base::app);
             debug.imbue(locale(debug.getloc(), new posix_time::time_facet()));
         }
 #else

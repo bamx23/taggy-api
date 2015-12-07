@@ -1,14 +1,25 @@
-fastcgipp:
-  build: build
+latest-rates:
+  build: build/latest-rates
   restart: always
-  container_name: fast-taggy-api
+  container_name: taggy-latest-rates
+
+  volumes:
+    - ./logs:/var/log/nginx
+    - ./logs:/var/log/taggy
+    - ./src:/data
+
+balancer:
+  build: build/balancer
+  restart: always
+  container_name: taggy-balancer
+
+  links :
+    - latest-rates:latest
 
   ports:
     - "8068:80"
 
   volumes:
-    - ./logs:/var/log/fastcgipp
     - ./logs:/var/log/nginx
     - ./html:/var/www/html
     - ./static:/var/www/static
-    - ./src:/data
