@@ -23,11 +23,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		41060BA31C15F06200B755C9 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = ../../../src/data; sourceTree = "<group>"; };
 		41F25BA61C1457BB00EC39C8 /* LatestCurrency */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LatestCurrency; sourceTree = BUILT_PRODUCTS_DIR; };
 		41F25BB21C14595100EC39C8 /* entry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = entry.cpp; sourceTree = "<group>"; };
 		41F25BB41C145A9200EC39C8 /* currency_storage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = currency_storage.hpp; path = ../../../src/currency_storage.hpp; sourceTree = "<group>"; };
 		41F25BB51C145DF200EC39C8 /* error.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = error.hpp; path = ../../../src/error.hpp; sourceTree = "<group>"; };
-		41F25BB61C147C7600EC39C8 /* currency.dump */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = currency.dump; path = ../../../src/currency.dump; sourceTree = "<group>"; };
+		41F25BB71C14C3C700EC39C8 /* history_storage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = history_storage.hpp; path = ../../../src/history_storage.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +61,8 @@
 		41F25BA81C1457BB00EC39C8 /* LatestCurrency */ = {
 			isa = PBXGroup;
 			children = (
-				41F25BB61C147C7600EC39C8 /* currency.dump */,
+				41060BA31C15F06200B755C9 /* data */,
+				41F25BB71C14C3C700EC39C8 /* history_storage.hpp */,
 				41F25BB51C145DF200EC39C8 /* error.hpp */,
 				41F25BB41C145A9200EC39C8 /* currency_storage.hpp */,
 				41F25BB21C14595100EC39C8 /* entry.cpp */,
@@ -261,6 +263,7 @@
 				41F25BAF1C1457BB00EC39C8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

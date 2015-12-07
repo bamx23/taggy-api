@@ -31,6 +31,9 @@
 # Logs
 logs/
 
+# Data
+src/data
+
 ## Various settings
 *.pbxuser
 !default.pbxuser

@@ -17,7 +17,9 @@
 #include "ptree-fix.hpp"
 #include "json_parser.hpp"
 
-namespace storage {
+namespace storage
+{
+    static const char dumpFilename[] = "data/currency.dump";
 
     struct Rate
     {
@@ -51,7 +53,6 @@ namespace storage {
 
     typedef std::vector<Rate> Currency;
 
-    static const char dumpFilename[] = "currency.dump";
     std::mutex saverMutex;
 
     void asyncSaver();
@@ -139,6 +140,12 @@ namespace storage {
             jsonString = buffer.str();
         }
 
+        boost::posix_time::ptime roundedTime(const boost::posix_time::ptime &time)
+        {
+            using namespace boost::posix_time;
+            return ptime(time.date(), seconds(time.time_of_day().total_seconds()));
+        }
+
     public:
         CurrencyStorage() : saverThread(asyncSaver)
         {
@@ -158,7 +165,7 @@ namespace storage {
             std::lock_guard<std::mutex> lock(staticStorageMutex);
             debug_log("Updating currency");
 
-            auto updateTime = boost::posix_time::microsec_clock::universal_time();
+            auto updateTime = roundedTime(boost::posix_time::microsec_clock::universal_time());
             for (auto &rate : currency) {
                 int index = -1;
                 for (size_t i = 0; i < currentCurrency.size(); ++i) {
