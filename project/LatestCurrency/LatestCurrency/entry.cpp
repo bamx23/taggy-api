@@ -28,10 +28,11 @@ void test_history_storage()
     boost::posix_time::ptime time2(from_iso_string("20150305T122320"));
 
     staticHistoryStorage.addCurrency(time1, cur1);
+    staticHistoryStorage.addCurrency(time1, cur1);
     staticHistoryStorage.addCurrency(time2, cur2);
 
     auto ncur1 = staticHistoryStorage.getCurrency(time1);
-    ncur1 = staticHistoryStorage.getCurrency(time1);
+    ncur1 = staticHistoryStorage.getCurrency(time2);
     ncur1 = staticHistoryStorage.getCurrency(time1);
 
     std::stringstream buffer;
@@ -42,7 +43,7 @@ void test_history_storage()
 
 int entry_point()
 {
-    test_currency_storage();
+    //test_currency_storage();
     test_history_storage();
     return 0;
 }

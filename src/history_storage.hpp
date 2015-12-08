@@ -39,6 +39,7 @@ namespace history
         std::map<std::string, float> rates;
         ptime time;
         boost::property_tree::ptree json;
+        sizeType offset;
 
         std::string utcDate(const boost::posix_time::ptime &time)
         {
@@ -71,20 +72,7 @@ namespace history
             json = result;
         }
 
-    public:
-        Currency() { }
-
-        Currency(const ptime &_time, const std::map<std::string, float> &_rates)
-            :time(_time), rates(_rates)
-        { }
-
-        Currency(const Currency &other)
-        {
-            rates = other.rates;
-            time = other.time;
-        }
-
-        void read(sizeType offset)
+        void read()
         {
             FILE *file = fopen(historyFilename, "r");
             fseek(file, offset, SEEK_SET);
@@ -107,7 +95,7 @@ namespace history
             }
 
             fclose(file);
-
+            
             formatJson();
         }
 
@@ -134,9 +122,34 @@ namespace history
             return offset;
         }
 
+    public:
+        explicit Currency(sizeType _offset)
+            :offset(_offset)
+        {
+            read();
+        }
+
+        Currency(const ptime &_time, const std::map<std::string, float> &_rates)
+            :time(_time), rates(_rates)
+        {
+            offset = append();
+        }
+
+        Currency(const Currency &other)
+        {
+            rates = other.rates;
+            time = other.time;
+            offset = other.offset;
+        }
+
         boost::property_tree::ptree getJson() const
         {
             return json;
+        }
+
+        sizeType getOffset() const
+        {
+            return offset;
         }
     };
 
@@ -252,7 +265,7 @@ namespace history
 
         void checkCache()
         {
-            if (cacheCalls.size() > cacheSize) {
+            while (cacheCalls.size() > cacheSize) {
                 auto it = cacheCalls.begin();
 
                 cacheCallsIndex.erase(it->second);
@@ -286,8 +299,8 @@ namespace history
             if (it != cache.end()) {
                 cur = it->second;
             } else {
-                cur = new Currency();
-                cur->read(index.getOffset(time));
+                auto offset = index.getOffset(time);
+                cur = new Currency(offset);
                 cache[time] = cur;
             }
 
@@ -296,16 +309,20 @@ namespace history
             return *cur;
         }
 
-        Currency &addCurrency(const ptime &time, const std::map<std::string, float> &rates)
+        bool addCurrency(const ptime &time, const std::map<std::string, float> &rates)
         {
+            if (containsCurrency(time)) {
+                debug_log("Tried to add existing currency");
+                return false;
+            }
+
             pCurrency cur = new Currency(time, rates);
-            auto offset = cur->append();
-            index.addOffset(time, offset);
+            index.addOffset(time, cur->getOffset());
             cache[time] = cur;
 
             updateCacheCall(time);
 
-            return *cur;
+            return true;
         }
     };
 
@@ -329,11 +346,7 @@ namespace history
 
         void addCurrency(const ptime &time, const std::map<std::string, float> &rates)
         {
-            if (!cache.containsCurrency(roundedTime(time))) {
-                cache.addCurrency(roundedTime(time), rates);
-            } else {
-                debug_log("Tried to add existing currency");
-            }
+            cache.addCurrency(roundedTime(time), rates);
         }
     };
 }
