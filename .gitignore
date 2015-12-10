@@ -32,7 +32,7 @@
 logs/
 
 # Data
-src/data
+data/
 
 ## Various settings
 *.pbxuser

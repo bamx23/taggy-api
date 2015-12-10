@@ -16,9 +16,9 @@
 #include <string>
 #include <fstream>
 
-#include "error.hpp"
-#include "ptree-fix.hpp"
-#include "json_parser.hpp"
+#include "../utility/error.hpp"
+#include "../boost-fix/ptree-fix.hpp"
+#include "../boost-fix/json_parser.hpp"
 
 using namespace boost::posix_time;
 

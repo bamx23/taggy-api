@@ -1,12 +1,36 @@
 latest-rates:
-  build: build/latest-rates
+  build: build/fcgi
   restart: always
   container_name: taggy-latest-rates
 
+  environment:
+    - FCGI_SRC=latest.cpp
+    - FCGI_BUILD_LOG=/var/log/fcgi/latest-build.log
+    - FCGI_DEBUG_LOG=/var/log/fcgi/latest-debug.log
+    - NGINX_ACCESS_LOG=/var/log/fcgi/latest-access.log
+    - NGINX_ERROR_LOG=/var/log/fcgi/latest-error.log
+
   volumes:
-    - ./logs:/var/log/nginx
-    - ./logs:/var/log/taggy
-    - ./src:/data
+    - ./logs:/var/log/fcgi
+    - ./src:/src
+    - ./data:/data
+
+history-rates:
+  build: build/fcgi
+  restart: always
+  container_name: taggy-history-rates
+
+  environment:
+    - FCGI_SRC=history.cpp
+    - FCGI_BUILD_LOG=/var/log/fcgi/history-build.log
+    - FCGI_DEBUG_LOG=/var/log/fcgi/history-debug.log
+    - NGINX_ACCESS_LOG=/var/log/fcgi/history-access.log
+    - NGINX_ERROR_LOG=/var/log/fcgi/history-error.log
+
+  volumes:
+    - ./logs:/var/log/fcgi
+    - ./src:/src
+    - ./data:/data
 
 balancer:
   build: build/balancer
@@ -15,11 +39,12 @@ balancer:
 
   links :
     - latest-rates:latest
+    - history-rates:history
 
   ports:
     - "8068:80"
 
   volumes:
-    - ./logs:/var/log/nginx
+    - ./logs:/var/log/balancer
     - ./html:/var/www/html
     - ./static:/var/www/static

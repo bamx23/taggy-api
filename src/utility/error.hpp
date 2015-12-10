@@ -7,6 +7,7 @@
 #include <mutex>
 #include <thread>
 #include <string>
+#include <cstdlib>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace logging 
@@ -36,7 +37,7 @@ namespace logging
         static ofstream debug;
 
         if (!debug.is_open()) {
-            debug.open("/var/log/taggy/debug.log", ios_base::out | ios_base::app);
+            debug.open(std::getenv("FCGI_DEBUG_LOG"), ios_base::out | ios_base::app);
             debug.imbue(locale(debug.getloc(), new posix_time::time_facet()));
         }
 #else
