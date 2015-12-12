@@ -7,7 +7,7 @@
 #include "boost-fix/ptree-fix.hpp"
 #include "boost-fix/json_parser.hpp"
 
-#include "storage/currency_storage.hpp"
+#include "storage/history_storage.hpp"
 
 using boost::property_tree::ptree;
 
@@ -36,20 +36,38 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
         out << "Content-Type: text/html; charset=utf-8\r\n\r\n";
     }
 
+    bool addHistory()
+    {
+        return true;
+    }
+
+    bool getHistory()
+    {
+        httpHeader(false);
+
+        for (auto &pi : environment().pathInfo) {
+            out << ">> " << pi << "\n";
+        }
+        for (auto &get : environment().gets) {
+            out << get.first << " = " << get.second << "\n";
+        }
+        
+        out << "Under construction\n";
+        return true;
+    }
+
     bool response()
     {
         debug_log("===response start");
         switch (environment().requestMethod) {
             case Fastcgipp::Http::HTTP_METHOD_GET:
-                if (environment().requestUri == "/api/v1/history/") {
-                    httpHeader(false);
-                    out << "Under construction\n";
-                    return true;
+                if (environment().scriptName == "/api/v1/history") {
+                    return getHistory();
                 }
                 break; 
 
             case Fastcgipp::Http::HTTP_METHOD_POST:
-                if (environment().requestUri == "/api/v1/history/") {
+                if (environment().scriptName == "/api/v1/history") {
                     httpHeader(false);
                     out << "Under construction\n";
                     return true;

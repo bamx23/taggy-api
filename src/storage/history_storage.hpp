@@ -102,8 +102,7 @@ namespace history
         sizeType append() const
         {
             FILE *file = fopen(historyFilename, "a");
-            sizeType offset;
-            fgetpos(file, &offset);
+            sizeType offset = (sizeType)ftell(file);
 
             ptime start(boost::gregorian::date(1970, 1, 1));
             sizeType count = (sizeType)rates.size(), value;
@@ -202,7 +201,7 @@ namespace history
             sizeType offset, count;
 
             while (!feof(fin)) {
-                fgetpos(fin, &offset);
+                offset = ftell(fin);
                 fread(&time, sizeof(timeType), 1, fin);
                 fread(&count, sizeof(sizeType), 1, fin);
 

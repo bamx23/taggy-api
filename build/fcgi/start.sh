@@ -3,8 +3,10 @@
 echo "Build" $(date) > "$FCGI_BUILD_LOG"
 
 cd src
-g++ -c -Wall -O2 --std=c++11 "$FCGI_SRC" -o /tmp/main.o >> "$FCGI_BUILD_LOG" 2>&1
-g++ /tmp/main.o $FCGI_LIBS -o /var/main.fcgi >> "$FCGI_BUILD_LOG" 2>&1
+g++ -c -Wall -O2 --std=c++11 "$FCGI_SRC" -o /tmp/main.o >> "$FCGI_BUILD_LOG" 2>&1 && \
+g++ /tmp/main.o $FCGI_LIBS -o /var/main.fcgi >> "$FCGI_BUILD_LOG" 2>&1 || \
+( sleep 10 && exit 1 )
+
 rm -rf /tmp/*
 cd /
 
