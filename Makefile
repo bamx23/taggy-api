@@ -1,7 +1,11 @@
 HOST=$(shell docker-machine ip default 2>/dev/null || echo localhost)
 URL=http://$(HOST):8068/api/v1/currency/
 
-all: up-containers
+all: keys/shared.key up-containers
+
+keys/shared.key:
+	ssh-keygen -b 2048 -t rsa -f keys/shared.key -q -N ""
+	cp keys/shared.key.pub build/fcgi/key.pub
 	
 build-images:
 	docker-compose build

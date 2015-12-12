@@ -30,6 +30,12 @@
 
 # Logs
 logs/
+tank/data/
+
+# Keys
+keys/
+key.pub
+key.prv
 
 # Data
 data/

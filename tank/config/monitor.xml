@@ -1,0 +1,16 @@
+<Monitoring>
+  <Host address="latest">
+    <CPU measure="user,system,iowait"/>
+    <System measure="csw,int"/>
+    <Memory measure="free,used"/>
+    <Disk measure="read,write"/>
+    <Net measure="recv,send"/>
+  </Host>
+  <Host address="history">
+    <CPU measure="user,system,iowait"/>
+    <System measure="csw,int"/>
+    <Memory measure="free,used"/>
+    <Disk measure="read,write"/>
+    <Net measure="recv,send"/>
+  </Host>
+</Monitoring>

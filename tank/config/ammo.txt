@@ -1,0 +1,3 @@
+[Content-Type: application/json]
+42 /api/v1/latest/
+{"currency":[{"name":"BYR", "value":322}]}
