@@ -4,7 +4,7 @@ import simplejson
 import datetime
 
 APP_ID = "40639356d56148f1ae26348d670e889f"
-TARGET_URL = "http://taggy-api.bx23.net/api/v1/currency/"
+TARGET_URL = "http://taggy-api.bx23.net/api/v1/latest/"
 
 def main():
     print 'Getting rates...'

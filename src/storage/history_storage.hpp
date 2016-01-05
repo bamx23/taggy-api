@@ -24,8 +24,8 @@ using namespace boost::posix_time;
 
 namespace history
 {
-    static char const indexFilename[] = "data/index.dat";
-    static char const historyFilename[] = "data/history.dat";
+    static char const indexFilename[] = "/data/index.dat";
+    static char const historyFilename[] = "/data/history.dat";
 
     static int32_t const nameSize = 3;
     typedef int64_t sizeType;
@@ -56,8 +56,6 @@ namespace history
         {
             using boost::property_tree::ptree;
 
-            ptree result;
-
             ptree currencyRates;
             for (auto &rate : rates) {
                 ptree element;
@@ -65,11 +63,9 @@ namespace history
                 element.put<float>("value", rate.second);
                 currencyRates.push_back(std::make_pair("", element));
             }
-            result.add_child("currency", currencyRates);
+            json.add_child("currency", currencyRates);
 
-            put_str(result, "time", utcDate(time));
-
-            json = result;
+            put_str(json, "time", utcDate(time));
         }
 
         void read()
@@ -139,6 +135,7 @@ namespace history
             rates = other.rates;
             time = other.time;
             offset = other.offset;
+            json = other.json;
         }
 
         boost::property_tree::ptree getJson() const
@@ -165,7 +162,9 @@ namespace history
 
         void read()
         {
+            debug_log("Start loading index");
             if (fileExists(indexFilename)) {
+                debug_log("Index exists");
                 FILE *fin = fopen(indexFilename, "r");
                 timeType time;
                 sizeType offset;
@@ -174,13 +173,18 @@ namespace history
                     fread(&time, sizeof(timeType), 1, fin);
                     fread(&offset, sizeof(sizeType), 1, fin);
                     offsets[boost::posix_time::from_time_t(time)] = (size_t)offset;
+                    std::stringstream ss;
+                    ss << "index " << boost::posix_time::from_time_t(time) << " " << (size_t)offset;
+                    debug_log(ss.str().data());
                 }
                 fclose(fin);
             }
+            debug_log("Stop loading index");
         }
 
         void append(const ptime &time, const sizeType &offset) const
         {
+            debug_log("Append index");
             FILE *fout = fopen(indexFilename, "a");
 
             ptime start(boost::gregorian::date(1970, 1, 1));
@@ -296,11 +300,15 @@ namespace history
 
             auto it = cache.find(time);
             if (it != cache.end()) {
+                debug_log("Getting from cache");
                 cur = it->second;
             } else {
                 auto offset = index.getOffset(time);
                 cur = new Currency(offset);
                 cache[time] = cur;
+                std::stringstream ss;
+                ss << "Getting from disk " << time << " " << offset;
+                debug_log(ss.str().data());
             }
 
             updateCacheCall(time);
@@ -329,7 +337,7 @@ namespace history
     {
         Cache cache;
 
-        ptime roundedTime(const ptime &time)
+        ptime roundedTime(const ptime &time) const
         {
             time_duration tod = seconds(time.time_of_day().total_seconds());
             time_duration roundedDownTod = hours(tod.hours());
@@ -338,6 +346,11 @@ namespace history
         }
 
     public:
+        bool containsCurrency(const ptime &time) const
+        {
+            return cache.containsCurrency(roundedTime(time));
+        }
+
         Currency &getCurrency(const ptime &time)
         {
             return cache.getCurrency(roundedTime(time));

@@ -12,8 +12,21 @@
 
 using boost::property_tree::ptree;
 
+static history_updater::Updater updater;
+
 class MainRequest : public Fastcgipp::Request<tchar_t>
 {
+    std::string utcDate(const boost::posix_time::ptime &time)
+    {
+        using namespace boost::posix_time;
+        static std::locale loc(std::locale::classic(), new time_facet("%Y%m%d-%H"));
+
+        std::ostringstream buffer;
+        buffer.imbue(loc);
+        buffer << time;
+        return buffer.str();
+    }
+
     void httpHeader(bool isJson = true) 
     {
         if (isJson) {
@@ -41,14 +54,50 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
     {
         httpHeader(false);
 
-        for (auto &pi : environment().pathInfo) {
-            out << ">> " << pi << "\n";
+        auto pathInfo = environment().pathInfo;
+        boost::posix_time::ptime time = microsec_clock::universal_time();
+        int count = 20;
+        if (pathInfo.size() >= 1) {
+            history_updater::dateparser dp("%Y%m%d-%H");
+            dp(pathInfo[0].data());
+            time = dp.pt;
+            if (pathInfo.size() >= 2) {
+                count = atoi(pathInfo[1].data());
+                if (count > 100) count = 100;
+                if (count < 1) count = 1;
+            }
         }
-        for (auto &get : environment().gets) {
-            out << get.first << " = " << get.second << "\n";
+
+        ptree root;
+        ptree currencyRates;
+        for (int i = 0; i < count; ++i) {
+            auto curTime = time - boost::posix_time::hours(i);
+            if (staticHistoryStorage.containsCurrency(curTime)) {
+                auto cur = staticHistoryStorage.getCurrency(curTime);
+                currencyRates.push_back(std::make_pair("", cur.getJson()));
+            }
         }
+        root.add_child("list", currencyRates);
+
+        std::stringstream nextUrl;
+        nextUrl << "\"" << environment().requestUri;
+        nextUrl << "/" << utcDate(time - boost::posix_time::hours(count));
+        nextUrl << "/" << count << "\"";
+        root.put("next", nextUrl.str());
+
+        std::stringstream selfUrl;
+        selfUrl << "\"" << environment().requestUri;
+        selfUrl << "/" << utcDate(time);
+        selfUrl << "/" << count << "\"";
+        root.put("self", selfUrl.str());
+
+        std::stringstream idStr;
+        idStr << utcDate(time) << "-" << count; 
+        put_str(root, "id", idStr.str());
         
-        out << "Under construction\n";
+        std::stringstream buffer;
+        write_json(buffer, root);
+        out << buffer.str();
         return true;
     }
 

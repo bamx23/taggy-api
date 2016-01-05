@@ -19,7 +19,7 @@
 
 namespace storage
 {
-    static const char dumpFilename[] = "data/currency.dump";
+    static const char dumpFilename[] = "/data/currency.dump";
 
     struct Rate
     {
@@ -195,7 +195,7 @@ namespace storage
         std::string getJson()
         {
             debug_log("Get before lock");
-            std::lock_guard<std::mutex> lock(staticStorageMutex);
+            //std::lock_guard<std::mutex> lock(staticStorageMutex);
             debug_log("Getting currency");
             return jsonString;
         }

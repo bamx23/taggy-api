@@ -18,7 +18,7 @@ namespace history_updater {
         dateparser(std::string fmt) {
             // set format
             using namespace boost::posix_time;
-            static std::locale loc(std::locale::classic(), new time_facet(fmt.data()));
+            std::locale loc(std::locale::classic(), new time_input_facet(fmt.data()));
             ss.imbue(loc);
         }
 
@@ -60,9 +60,7 @@ namespace history_updater {
             auto value = rate.get<float>("value");
             rates[name] = value;
         }
-        auto timeStr = root.get<std::string>("time");
-        dp(timeStr);
-        auto time = dp.pt;
+        auto time = microsec_clock::universal_time();
 
         staticHistoryStorage.addCurrency(time, rates);
         debug_log("Currency history updated");
@@ -114,8 +112,6 @@ namespace history_updater {
             thread.join();
         }
     };
-
-    static Updater updater;
 }
 
 #endif
