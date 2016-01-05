@@ -23,6 +23,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		416C39DE1C36D3DB00A89793 /* datasync.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = datasync.h; path = ../../../src/sync/datasync.h; sourceTree = "<group>"; };
+		416D3F9B1C3BC03F00F7132D /* json_client.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json_client.hpp; path = ../../../src/utility/json_client.hpp; sourceTree = "<group>"; };
+		416D3F9C1C3BD09700F7132D /* history_updater.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = history_updater.hpp; path = ../../../src/storage/history_updater.hpp; sourceTree = "<group>"; };
 		41AF42DE1C19B36B00829D9B /* currency_storage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = currency_storage.hpp; path = ../../../src/storage/currency_storage.hpp; sourceTree = "<group>"; };
 		41AF42DF1C19B36B00829D9B /* history_storage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = history_storage.hpp; path = ../../../src/storage/history_storage.hpp; sourceTree = "<group>"; };
 		41AF42E01C19B37E00829D9B /* error.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = error.hpp; path = ../../../src/utility/error.hpp; sourceTree = "<group>"; };
@@ -66,6 +69,9 @@
 				41AF42DE1C19B36B00829D9B /* currency_storage.hpp */,
 				41AF42DF1C19B36B00829D9B /* history_storage.hpp */,
 				41F25BB21C14595100EC39C8 /* entry.cpp */,
+				416C39DE1C36D3DB00A89793 /* datasync.h */,
+				416D3F9B1C3BC03F00F7132D /* json_client.hpp */,
+				416D3F9C1C3BD09700F7132D /* history_updater.hpp */,
 			);
 			path = LatestCurrency;
 			sourceTree = "<group>";
@@ -215,6 +221,7 @@
 		41F25BAE1C1457BB00EC39C8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				HEADER_SEARCH_PATHS = (
 					../../src,
 					/usr/local/Cellar/boost/HEAD/include,
@@ -223,6 +230,7 @@
 				OTHER_LDFLAGS = (
 					"-e",
 					__Z11entry_pointv,
+					"-lboost_system",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -231,6 +239,7 @@
 		41F25BAF1C1457BB00EC39C8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				HEADER_SEARCH_PATHS = (
 					../../src,
 					/usr/local/Cellar/boost/HEAD/include,
@@ -239,6 +248,7 @@
 				OTHER_LDFLAGS = (
 					"-e",
 					__Z11entry_pointv,
+					"-lboost_system",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

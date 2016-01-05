@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Build" $(date) > "$FCGI_BUILD_LOG"
+echo "Build" $(date) >> "$FCGI_BUILD_LOG"
 
 cd src
 g++ -c -Wall -O2 --std=c++11 "$FCGI_SRC" -o /tmp/main.o >> "$FCGI_BUILD_LOG" 2>&1 && \

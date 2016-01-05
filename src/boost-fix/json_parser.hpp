@@ -46,7 +46,11 @@ namespace boost { namespace property_tree { namespace json_parser
                    > &stream,
                    Ptree &pt)
     {
+#ifdef XCODE
+        detail::read_json_internal(stream, pt, std::string());
+#else
         read_json_internal(stream, pt, std::string());
+#endif
     }
 
     /**

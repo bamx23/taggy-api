@@ -20,6 +20,9 @@ history-rates:
   restart: always
   container_name: taggy-history-rates
 
+  links :
+    - latest-rates:latest
+
   environment:
     - FCGI_SRC=history.cpp
     - FCGI_BUILD_LOG=/var/log/fcgi/history-build.log

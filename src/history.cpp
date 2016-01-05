@@ -8,6 +8,7 @@
 #include "boost-fix/json_parser.hpp"
 
 #include "storage/history_storage.hpp"
+#include "storage/history_updater.hpp"
 
 using boost::property_tree::ptree;
 
@@ -36,11 +37,6 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
         out << "Content-Type: text/html; charset=utf-8\r\n\r\n";
     }
 
-    bool addHistory()
-    {
-        return true;
-    }
-
     bool getHistory()
     {
         httpHeader(false);
@@ -63,14 +59,6 @@ class MainRequest : public Fastcgipp::Request<tchar_t>
             case Fastcgipp::Http::HTTP_METHOD_GET:
                 if (environment().scriptName == "/api/v1/history") {
                     return getHistory();
-                }
-                break; 
-
-            case Fastcgipp::Http::HTTP_METHOD_POST:
-                if (environment().scriptName == "/api/v1/history") {
-                    httpHeader(false);
-                    out << "Under construction\n";
-                    return true;
                 }
                 break;
 
