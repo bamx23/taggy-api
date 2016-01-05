@@ -4,6 +4,7 @@ latest-rates:
   container_name: taggy-latest-rates
 
   environment:
+    - FCGI_FLAGS=-DNODEBUG
     - FCGI_SRC=latest.cpp
     - FCGI_BUILD_LOG=/var/log/fcgi/latest-build.log
     - FCGI_DEBUG_LOG=/var/log/fcgi/latest-debug.log
@@ -24,6 +25,7 @@ history-rates:
     - latest-rates:latest
 
   environment:
+    - FCGI_FLAGS=-DNODEBUG
     - FCGI_SRC=history.cpp
     - FCGI_BUILD_LOG=/var/log/fcgi/history-build.log
     - FCGI_DEBUG_LOG=/var/log/fcgi/history-debug.log

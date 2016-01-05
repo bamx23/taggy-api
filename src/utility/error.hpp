@@ -104,7 +104,9 @@ void error_log(const char* msg)
 
 void debug_log(const char* msg)
 {
+    #ifdef DEBUG
     logging::logAsync(msg, false);
+    #endif
 }
 
 #endif

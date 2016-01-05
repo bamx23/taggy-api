@@ -28,6 +28,7 @@ RUN rm -f /etc/service/sshd/down && \
     rm -f /tmp/shared.pub
 
 ENV FCGI_LIBS="-lfastcgipp -lboost_thread -lboost_system -lboost_date_time -pthread" \
+    FCGI_FLAGS="-DDEBUG" \
     FCGI_SRC="main.cpp" \
     FCGI_BUILD_LOG="/var/log/fcgi/build.log" \
     FCGI_DEBUG_LOG="/var/log/fcgi/debug.log" \

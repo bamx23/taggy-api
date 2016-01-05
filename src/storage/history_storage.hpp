@@ -128,6 +128,7 @@ namespace history
             :time(_time), rates(_rates)
         {
             offset = append();
+            formatJson();
         }
 
         Currency(const Currency &other)
