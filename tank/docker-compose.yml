@@ -1,0 +1,15 @@
+tank:
+  build: build
+  container_name: taggy-tank
+
+  external_links:
+    - taggy-balancer:balancer
+    - taggy-latest-rates:latest
+    - taggy-history-rates:history
+
+  environment:
+    - TANK_LOAD=load.ini
+
+  volumes:
+    - ./data:/data
+    - ./config:/config
