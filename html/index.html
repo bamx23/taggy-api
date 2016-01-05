@@ -23,8 +23,8 @@
             </div>
             <div class='jumbotron'>
                 <p>
-                    <a href='/rates' class='btn btn-sm btn-warning'>Latest Currency(JSON)</a>
-                    <a href='/history/0/24' class='btn btn-sm btn-warning'>Currency History(JSON)</a>
+                    <a href='/api/v1/latest/' class='btn btn-sm btn-warning'>Latest Currency(JSON)</a>
+                    <a href='/api/v1/history/' class='btn btn-sm btn-warning'>Currency History(JSON)</a>
                 </p>
                 <h3>Actual currencies <i>(for 1 USD)</i></h3>
                 <table class='table' style='text-align: center' id='currency'>
@@ -39,7 +39,7 @@
         <script src='/static/js/bootstrap.min.js'></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                $.getJSON("/api/v1/currency/", function(data) {
+                $.getJSON("/api/v1/latest/", function(data) {
                     var items = ["<tr><td>Currency</td><td>Rate</td></tr>"];
                     $.each(data["currency"], function(key, val) {
                         items.push("<tr><td>" + val["name"] + "</td><td>" + val["value"] + "</td></tr>");
